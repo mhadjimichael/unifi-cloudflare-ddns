@@ -1,6 +1,7 @@
-# Cloudflare DDNS for UniFi OS
+# Cloudflare DDNS for UniFi OS behind Double NAT
 
 A Cloudflare Worker script that exposes a UniFi-compatible DDNS API to dynamically update the IP address of a DNS A record.
+This uses your public internet IP address to resolve issues introduced behind Double NAT.
 
 ## Why?
 
@@ -23,7 +24,7 @@ You must have a Cloudflare account and your domain must be configured to point t
 - `Hostname`: the full subdomain and hostname of the record you want to update (e.g. `subdomain.mydomain.com`, `mydomain.com` for root domain)
 - `Username`: the domain name containing the record (e.g. `mydomain.com`)
 - `Password`: the Cloudflare API Token you created earlier
-- `Server`: the Cloudflare Worker route `<worker-name>.<worker-subdomain>.workers.dev/update?ip=%i&hostname=%h`. 
+- `Server`: the Cloudflare Worker route `<worker-name>.<worker-subdomain>.workers.dev/update?&hostname=%h`.
 
 #### Important Note!
 On UniFi devices older than the UDM, the `Server` value should be configured as seen below, with no path suffix: 

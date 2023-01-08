@@ -5,6 +5,8 @@
  */
 async function handleRequest(request) {
   const { protocol, pathname } = new URL(request.url);
+  // Use the requester's public IP address
+  const reqip = request.headers.get('cf-connecting-ip');
 
   // Require HTTPS (TLS) connection to be secure.
   if (
@@ -15,6 +17,9 @@ async function handleRequest(request) {
   }
 
   switch (pathname) {
+    case "/myip":
+      return new Response(reqip, {status: 200});
+      break;
 
     case "/nic/update":
     case "/update":
@@ -26,7 +31,7 @@ async function handleRequest(request) {
         verifyParameters(url);
 
         // Only returns this response when no exception is thrown.
-        const response = await informAPI(url, username, password);
+        const response = await informAPI(reqip, url, username, password);
         return response;
       }
 
@@ -47,12 +52,9 @@ async function handleRequest(request) {
  * @param {String} token
  * @returns {Promise<Response>}
  */
-async function informAPI(url, name, token) {
+async function informAPI(ip, url, name, token) {
   // Parse Url
   const hostname = url.searchParams.get("hostname");
-  // Get the IP address. This can accept two query parameters, this will
-  // use the "ip" query parameter if it is set, otherwise falling back to "myip". 
-  const ip = url.searchParams.get("ip") || url.searchParams.get("myip");
 
   // Initialize API Handler
   const cloudflare = new Cloudflare({
@@ -85,10 +87,6 @@ function verifyParameters(url) {
 
   if (!url.searchParams.get("hostname")) {
     throw new BadRequestException("You must specify a hostname");
-  }
-
-  if (!(url.searchParams.get("ip") || url.searchParams.get("myip"))) {
-    throw new BadRequestException("You must specify an ip address");
   }
 }
 
